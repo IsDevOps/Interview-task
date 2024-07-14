@@ -1,0 +1,14 @@
+image:
+  repository: flaskapp
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 80
+
+env:
+  DB_USER: myuser
+  DB_PASS: mypassword
+  DB_HOST: mydatabase
+  DB_NAME: mydatabase
