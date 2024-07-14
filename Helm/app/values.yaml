@@ -8,7 +8,7 @@ service:
   port: 80
 
 env:
-  DB_USER: myuser
-  DB_PASS: mypassword
-  DB_HOST: mydatabase
-  DB_NAME: mydatabase
+  DB_USER: user
+  DB_PASS: password
+  DB_HOST: my-sql-instance
+  DB_NAME: test-db
