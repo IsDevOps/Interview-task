@@ -4,25 +4,27 @@ provider "google" {
 }
 
 resource "google_container_cluster" "primary" {
-  name     = var.cluster_name
-  location = var.region
+  name     = "gke-cluster"
+  location = "us-central1-a"
 
   initial_node_count = 2
 
   node_config {
     machine_type = "e2-medium"
+    disk_size_gb = 50  
+    disk_type = "pd-ssd"
   }
 }
 
 resource "google_sql_database_instance" "db_instance" {
-  name             = var.db_instance_name
-  database_version = "POSTGRES_13"
-  region           = var.region
+  name                = var.db_instance_name
+  database_version    = "POSTGRES_13"
+  region              = var.region
+  deletion_protection = false
 
   settings {
     tier = "db-f1-micro"
   }
-    deletion_protection = false
 }
 
 resource "google_sql_database" "default" {
