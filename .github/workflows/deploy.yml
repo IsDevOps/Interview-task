@@ -33,6 +33,6 @@ jobs:
         run: |
           helm upgrade --install my-app ./my-app-chart --namespace default --create-namespace --wait
 
-      - name: Push Helm chart to storage
+      - name: Push Helm chart to storages
         run: |
           gsutil cp ./my-app-chart/*.tgz gs://<your-bucket-name>/
