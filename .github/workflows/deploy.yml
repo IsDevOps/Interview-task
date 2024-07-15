@@ -29,7 +29,7 @@ jobs:
         service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
     - name: Get GKE credentials
-      run: gcloud container clusters get-credentials primary-gke-cluster --region ${{ secrets.GCP_REGION }}
+      run: gcloud container clusters get-credentials gke-cluster --region ${{ secrets.GCP_REGION }}
 
     - name: Deploy to GKE
       run: |
