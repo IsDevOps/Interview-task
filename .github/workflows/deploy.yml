@@ -17,27 +17,27 @@ jobs:
       uses: google-github-actions/setup-gcloud@v0
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY}}
 
-    - name: Debug Secrets
+    - name: Decode and save service account key
       run: |
-        echo "GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}"
-        echo "GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}"
-        echo "GCP_ZONE: ${{ secrets.GCP_REGION }}"
-        echo "GCS_BUCKET: ${{ secrets.GCS_BUCKET }}"
+        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY}}" | base64 -d > ${HOME}/service-key.json
+        cat ${HOME}/service-key.json
 
-    - name: Configure kubectl
-      run: |
-        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > ${HOME}/service-key.json
-        gcloud auth activate-service-account --key-file=${HOME}/service-key.json
-        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }}
-        mkdir -p $HOME/.kube
-        echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
+    - name: Authenticate with service account
+      run: gcloud auth activate-service-account --key-file=${HOME}/service-key.json
+
+    - name: Get cluster credentials
+      run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }}
+
+    - name: Create .kube directory
+      run: mkdir -p $HOME/.kube
+
+    - name: Save kubeconfig content
+      run: echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
 
     - name: Deploy to GKE
-      run: |
-        helm upgrade --install flask-app ./flask-app --namespace default
+      run: helm upgrade --install flask-app ./flask-app --namespace default
 
     - name: Push Helm chart to GCS
-      run: |
-        gsutil cp -r ./flask-app gs://${{ secrets.GCS_BUCKET }}/charts/
+      run: gsutil cp -r ./flask-app gs://${{ secrets.GCS_BUCKET }}/charts/
