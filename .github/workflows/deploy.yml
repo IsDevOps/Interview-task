@@ -6,29 +6,30 @@ on:
       - master
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Logs in to Docker Hub
-      run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-    - name: Build and push Docker images
-      run: |
-        docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/flaskapp:$GITHUB_SHA .
-        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/flaskapp:$GITHUB_SHA
-
     - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0.2.0
+      uses: google-github-actions/setup-gcloud@master
       with:
         version: 'latest'
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Authenticate to Google Cloud
+      run: gcloud auth activate-service-account --key-file=${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+    - name: Configure kubectl
+      run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION}}
 
     - name: Deploy to GKE
       run: |
-        gcloud container clusters get-credentials gke-cluster --region us-central1-a
-        helm upgrade --install flaskapp ./helm --set image.repository=${{ secrets.DOCKER_HUB_USERNAME }}/flaskapp --set image.tag=$GITHUB_SHA
+        helm upgrade --install myapp ./helm
+
+    - name: Upload Helm chart to Cloud Storage
+      run: |
+        gsutil cp ./helm gs://my-helm-charts/helm-${{ github.sha }}.tgz
