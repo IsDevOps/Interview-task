@@ -20,21 +20,18 @@ jobs:
         service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY}}
 
     - name: Decode and save service account key
-      run: |
-        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY}}" | base64 -d > ${HOME}/service-key.json
-        cat ${HOME}/service-key.json
+      run: echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY}}" | base64 -d > ${HOME}/service-key.json
 
-    - name: Authenticates with service account
-      run: gcloud auth activate-service-account --key-file=${HOME}/service-key.json
+    - name: Authenticate with service account
+      run: |
+        gcloud auth activate-service-account --key-file=${HOME}/service-key.json
+        gcloud config set account $(gcloud auth list --filter=status:ACTIVE --format="value(account)")
 
     - name: Get cluster credentials
-      run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }}
-
-    - name: Create .kube directory
-      run: mkdir -p $HOME/.kube
-
-    - name: Save kubeconfig content
-      run: echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
+      run: |
+        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }}
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
 
     - name: Deploy to GKE
       run: helm upgrade --install flask-app ./flask-app --namespace default
