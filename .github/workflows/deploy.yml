@@ -3,7 +3,7 @@ name: Deploy to GKE
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
@@ -19,9 +19,19 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-    - name: Configures kubectl
+    - name: Debug Secrets
       run: |
-        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_ZONE }}
+        echo "GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}"
+        echo "GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}"
+        echo "GCP_ZONE: ${{ secrets.GCP_REGION }}"
+        echo "GCS_BUCKET: ${{ secrets.GCS_BUCKET }}"
+        echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > ${HOME}/service-key.json
+        gcloud auth activate-service-account --key-file=${HOME}/service-key.json
+        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }}
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
 
