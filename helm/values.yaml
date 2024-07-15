@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: your-dockerhub-username/flask-app
+  repository: oseghale1/flaskapp
   tag: latest
   pullPolicy: IfNotPresent
 
