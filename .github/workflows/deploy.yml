@@ -3,14 +3,14 @@ name: Deploy to GKE
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout codes
       uses: actions/checkout@v2
 
     - name: Set up Cloud SDK
