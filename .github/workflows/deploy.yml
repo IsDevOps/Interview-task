@@ -3,7 +3,7 @@ name: Deploy to GKE
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
@@ -14,22 +14,21 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@master
+      uses: google-github-actions/setup-gcloud@v0
       with:
-        version: 'latest'
-        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-
-    - name: Authenticate to Google Cloud
-      run: gcloud auth activate-service-account --key-file=${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
     - name: Configure kubectl
-      run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION}}
+      run: |
+        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_ZONE }}
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
 
     - name: Deploy to GKE
       run: |
-        helm upgrade --install myapp ./helm
+        helm upgrade --install flask-app ./flask-app --namespace default
 
-    - name: Upload Helm chart to Cloud Storage
+    - name: Push Helm chart to GCS
       run: |
-        gsutil cp ./helm gs://my-helm-charts/helm-${{ github.sha }}.tgz
+        gsutil cp -r ./flask-app gs://${{ secrets.GCS_BUCKET }}/charts/
