@@ -9,26 +9,3 @@ service:
   type: LoadBalancer
   port: 80
 
-env:
-  - name: DB_HOST
-    value: my-sql-instance
-  - name: DB_NAME
-    value: test-db
-  - name: DB_USER
-    value: user
-  - name: DB_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: db-secret
-        key: password
-
-ingress:
-  enabled: false
-
-resources: {}
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}

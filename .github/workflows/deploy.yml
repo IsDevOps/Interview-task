@@ -3,43 +3,34 @@ name: Deploy to GKE
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v1
-      with:
-        credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY}}
+    - name: Log in to Docker Hub
+      run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
-    - name: Set up Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
+    - name: Build and push Docker image
+      run: |
+        docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/flaskapp:$GITHUB_SHA .
+        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/flaskapp:$GITHUB_SHA
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
       with:
+        version: 'latest'
         project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-    - name: Configure kubectl
+    - name: Get GKE credentials
+      run: gcloud container clusters get-credentials primary-gke-cluster --region ${{ secrets.GCP_REGION }}
+
+    - name: Deploy to GKE
       run: |
-        echo ${{ secrets.GCP_SERVICE_ACCOUNT_KEY}} | base64 --decode -i > ${HOME}/gcloud-service-key.json
-        gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-        gcloud config set compute/zone ${{ secrets.GCP_REGION }}
-        gcloud container clusters get-credentials <your-cluster-name> --region <your-region>
-
-    - name: Verify kubectl context
-      run: kubectl config current-context
-
-    - name: Get cluster info
-      run: kubectl cluster-info
-
-    - name: List namespaces
-      run: kubectl get namespaces
-
-    - name: Deploy with Helm
-      run: |
-        helm upgrade --install flask-app ./flask-app --set image.repository=your-dockerhub-username/flask-app,image.tag=latest
+        helm upgrade --install flask-app ./flaskapp --set image.repository=${{ secrets.DOCKER_HUB_USERNAME }}/flaskapp --set image.tag=$GITHUB_SHA
