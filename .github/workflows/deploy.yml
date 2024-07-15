@@ -21,7 +21,7 @@ jobs:
 
       - name: Configure kubectl
         run: |
-          gcloud container clusters get-credentials gke-cluster --zone us-central1-a --project algebraic-link-424219-v7
+          gcloud container clusters get-credentials gke-cluster --zone us-central1-a --project new-task-429501
 
       - name: Install Helm
         run: |
