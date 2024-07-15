@@ -24,7 +24,7 @@ jobs:
         echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY}}" | base64 -d > ${HOME}/service-key.json
         cat ${HOME}/service-key.json
 
-    - name: Authenticate with service account
+    - name: Authenticates with service account
       run: gcloud auth activate-service-account --key-file=${HOME}/service-key.json
 
     - name: Get cluster credentials
