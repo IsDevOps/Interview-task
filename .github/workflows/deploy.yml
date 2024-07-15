@@ -30,5 +30,5 @@ jobs:
 
     - name: Deploy to GKE
       run: |
-        gcloud container clusters get-credentials primary-gke-cluster --region ${{ secrets.GCP_REGION }}
+        gcloud container clusters get-credentials gke-cluster --region ${{ secrets.GCP_REGION }}
         helm upgrade --install flaskapp ./helm --set image.repository=${{ secrets.DOCKER_HUB_USERNAME }}/flaskapp --set image.tag=$GITHUB_SHA
