@@ -3,32 +3,43 @@ name: Deploy to GKE
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0.2.0
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
       with:
-        version: 'latest'
+        credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-    - name: Authenticate Docker to Google Container Registry
-      run: gcloud auth configure-docker
-
-    - name: Build and push Docker image
+    - name: Configure kubectl
       run: |
-        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/flaskapp:$GITHUB_SHA .
-        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/flaskapp:$GITHUB_SHA
+        echo ${{ secrets.GCP_SA_KEY }} | base64 --decode -i > ${HOME}/gcloud-service-key.json
+        gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+        gcloud config set compute/zone ${{ secrets.GCP_REGION}}
+        gcloud container clusters get-credentials <your-cluster-name> --region <your-region>
 
-    - name: Deploy to GKE
+    - name: Verify kubectl context
+      run: kubectl config current-context
+
+    - name: Get cluster info
+      run: kubectl cluster-info
+
+    - name: List namespaces
+      run: kubectl get namespaces
+
+    - name: Deploy with Helm
       run: |
-        gcloud container clusters get-credentials primary-gke-cluster --region ${{ secrets.GCP_REGION }}
-        helm upgrade --install flaskapp ./helm-chart --set image.repository=gcr.io/${{ secrets.GCP_PROJECT_ID }}/flaskapp --set image.tag=$GITHUB_SHA
+        helm upgrade --install flask-app ./flaskapp --set image.repository=oseghale1/flaskapp,image.tag=latest
