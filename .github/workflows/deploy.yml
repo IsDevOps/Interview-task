@@ -17,15 +17,19 @@ jobs:
       uses: google-github-actions/setup-gcloud@v0
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY}}
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
     - name: Decode and save service account key
-      run: echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY}}" | base64 -d > ${HOME}/service-key.json
+      run: |
+        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY}}" | base64 -d > ${HOME}/service-key.json
 
     - name: Authenticate with service account
       run: |
         gcloud auth activate-service-account --key-file=${HOME}/service-key.json
         gcloud config set account $(gcloud auth list --filter=status:ACTIVE --format="value(account)")
+
+    - name: Verify active account
+      run: gcloud config list account
 
     - name: Get cluster credentials
       run: |
