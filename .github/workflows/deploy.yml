@@ -31,7 +31,7 @@ jobs:
 
       - name: Deploy application
         run: |
-          helm upgrade --install my-app ./my-app-chart --namespace default --create-namespace --wait
+          helm upgrade --install app ./app --namespace default --create-namespace --wait
 
       - name: Push Helm chart to storage
         run: |
