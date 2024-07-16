@@ -5,4 +5,3 @@ terraform {
     }
   }
 }
-test-978@steam-form-429617-k7.iam.gserviceaccount.com
