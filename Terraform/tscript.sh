@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables
-GCS_BUCKET_NAME=test-bucket557
+GCS_BUCKET_NAME=test-bucket5577
 TFVARS_FILE=terraform.tfvars
 TFSTATE_FILE=terraform.tfstate
 TFSTATE_BK=terraform.tfstate.backup
