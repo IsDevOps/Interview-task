@@ -25,4 +25,4 @@ jobs:
 
     - name: Deploy to GKE
       run: |
-        helm upgrade --install app ./app --namespace default --wait
+        helm upgrade --install app ./app --namespace gke-managed-system --wait
