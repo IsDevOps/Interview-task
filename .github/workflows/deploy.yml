@@ -21,8 +21,8 @@ jobs:
 
       - name: Authenticate with service account
         run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 --decode > $HOME/gcp-key.json
-          gcloud auth activate-service-account --key-file=$HOME/gcp-key.json
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 --decode > $HOME/key.json
+          gcloud auth activate-service-account --key-file=$HOME/key.json
 
       - name: Set GCP project
         run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
