@@ -13,24 +13,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v0.8.0
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
       with:
-        credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-    - name: Configure Google Cloud SDK
+    - name: Configure kubectl
       run: |
-        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-        gcloud config set compute/zone ${{ secrets.GCP_REGION }}
+        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}
 
-    - name: Get GKE Credential
-      run: |
-        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }}
-      
     - name: Deploy to GKE
       run: |
         helm upgrade --install flask-app ./flask-app --namespace default --wait
-      
-    - name: Push Helm chart to GCS
-      run: |
-        gsutil cp -r ./flask-app gs://${{ secrets.GCS_BUCKET }}/charts/
