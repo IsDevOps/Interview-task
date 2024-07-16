@@ -3,7 +3,7 @@ name: Deploy to GKE
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
@@ -21,7 +21,7 @@ jobs:
 
     - name: Configure kubectl
       run: |
-        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_ZONE }}
+        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }}
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
 
