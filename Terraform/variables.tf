@@ -14,19 +14,19 @@ variable "cluster_name" {
 
 variable "db_instance_name" {
   description = "The name of the Cloud SQL instance"
-  default     = "my-sql-instance"
+  default     = "sql-instance"
 }
 
 variable "db_name" {
   description = "The name of the database"
-  default     = "mydatabase"
+  default     = "test-db"
 }
 
 variable "db_user" {
   description = "The database user"
-  default     = "dbuser"
+  default     = "userdb"
 }
 
 variable "db_password" {
-  description = "The database password"
+  description = "password"
 }
