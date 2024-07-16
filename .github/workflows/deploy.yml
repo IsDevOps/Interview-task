@@ -20,9 +20,8 @@ jobs:
 
     - name: Install gke-gcloud-auth-plugin
       run: |
-        wget https://example.com/path/to/gke-gcloud-auth-plugin -O /home/runner/gke-gcloud-auth-plugin
-        chmod +x /home/runner/gke-gcloud-auth-plugin
-        export PATH=$PATH:/home/runner
+        sudo apt-get update && sudo apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
+        echo "export USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> $GITHUB_ENV
 
     - name: Configure kubectl
       run: |        
@@ -30,4 +29,4 @@ jobs:
 
     - name: Deploy to GKE
       run: |
-        helm upgrade --install app ./app --namespace default --wait
+        helm upgrade --install app ./app --namespace gke-managed-system --wait
