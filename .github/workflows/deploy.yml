@@ -18,11 +18,16 @@ jobs:
       with:
         service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
+    - name: Install gke-gcloud-auth-plugin
+      run: |
+        wget https://example.com/path/to/gke-gcloud-auth-plugin -O /home/runner/gke-gcloud-auth-plugin
+        chmod +x /home/runner/gke-gcloud-auth-plugin
+        export PATH=$PATH:/home/runner
+
     - name: Configure kubectl
       run: |        
-        export PATH=$PATH:/home/oseghale/gke-gcloud-auth-plugin
         gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}
 
     - name: Deploy to GKE
       run: |
-        helm upgrade --install app ./app --namespace gke-managed-system --wait
+        helm upgrade --install app ./app --namespace default --wait
