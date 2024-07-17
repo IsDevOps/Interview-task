@@ -1,11 +1,11 @@
 replicaCount: 2
 
 image:
-  repository: oseghale1/flaskapp
+  repository: oseghale1/flask-app
   tag: latest
   pullPolicy: IfNotPresent
 
 service:
   type: LoadBalancer
-  port: 8000
+  port: 80
 

@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: flask-container
-        image: oseghale1/flaskapp
+        image: oseghale1/flask-app
         ports:
-        - containerPort: 8000
+        - containerPort: 5000
