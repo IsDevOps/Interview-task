@@ -33,4 +33,4 @@ jobs:
 
     - name: Deploy to GKE
       run: |
-        helm upgrade --install flask-app ./flask-app --namespace gke-managed-system --wait
+        helm upgrade --install flask-app ./flask-app --namespace default --wait
