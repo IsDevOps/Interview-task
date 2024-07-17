@@ -33,4 +33,10 @@ jobs:
 
     - name: Deploy to GKE
       run: |
-        helm upgrade --install flask-app ./flask-app --namespace default --wait
+        helm upgrade --install app ./flask-app --namespace default 
+    - name: Push Helm chart to GCS
+      run: |
+          gsutil cp -r ./flask-app gs://${{ secrets.GCS_BUCKET }}/charts/
+    - name: Get service external IP
+      run: |
+          kubectl get svc flask-app -n default -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
