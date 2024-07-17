@@ -1,7 +1,0 @@
-project          = "steam-form-429617-k7"
-region           = "us-central1"
-cluster_name     = "gke-cluster"
-db_instance_name = "sql-instance"
-db_name          = "test-db"
-db_user          = "userdb"
-db_password      = "password"
